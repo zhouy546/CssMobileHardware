@@ -16,6 +16,12 @@ public class NodesCtr : MonoBehaviour
 
     private List<Node> nodes = new List<Node>();
 
+
+    public List<LightNode> ecoLighton = new List<LightNode>();
+
+    public List<LightNode> ecoLightoff = new List<LightNode>();
+
+
     public Image FillImage;
 
     public Text persentageText;
@@ -31,6 +37,32 @@ public class NodesCtr : MonoBehaviour
         nodes.AddRange(leds);
         nodes.AddRange(RackPower);
     }
+
+
+    private async Task ECOLightOn()
+    {
+        float index = 0;
+        for (int i = 0; i < ecoLighton.Count; i++)
+        {
+            index++;
+            await ecoLighton[i].OnClick();
+            FillImage.fillAmount = index / (ecoLighton.Count+ ecoLightoff.Count);
+
+            persentageText.text = Mathf.CeilToInt(FillImage.fillAmount * 100).ToString() + "%";
+        }
+
+        for (int i = 0; i < ecoLightoff.Count; i++)
+        {
+            index++;
+            await ecoLightoff[i].OffClick();
+            FillImage.fillAmount = index / (ecoLightoff.Count+ ecoLighton.Count);
+
+            persentageText.text = Mathf.CeilToInt(FillImage.fillAmount * 100).ToString() + "%";
+        }
+
+        processBar.SetActive(false);
+    }
+
 
     private async Task OnClick()
     {
@@ -129,6 +161,16 @@ public class NodesCtr : MonoBehaviour
             persentageText.text = Mathf.CeilToInt(FillImage.fillAmount * 100).ToString() + "%";
         }
         processBar.SetActive(false);
+    }
+
+
+    public void EcoBtnClick()
+    {
+        ValueSheet.currentProcessBar = processBar;
+
+        WarningGuiCtr.INSTANCE.m_TaskcallBack = ECOLightOn;
+
+        UICtr.INSTANCE.OpenWarningGUI();
     }
 
     public void OnBtnClick()
