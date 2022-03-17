@@ -61,6 +61,9 @@ public class NodesCtr : MonoBehaviour
         }
 
         processBar.SetActive(false);
+
+        TCP.INSTANCE.shutDownSocket();
+
     }
 
 
@@ -76,10 +79,10 @@ public class NodesCtr : MonoBehaviour
 
             persentageText.text = Mathf.CeilToInt(FillImage.fillAmount * 100).ToString()+"%"; 
         }
-        //如果需要打开机柜电源，交换机开始通讯需要需要等待60秒
+        //如果需要打开机柜电源，交换机开始通讯需要需要等待80秒
         if (RackPower.Count > 0)
         {
-            await Task.Delay(60000);
+            await Task.Delay(80000);
         }
 
         //打开LED电箱
@@ -97,7 +100,7 @@ public class NodesCtr : MonoBehaviour
             index++;
 
             Debug.Log(index);
-
+            Debug.Log(pcs[i].ip);
             await pcs[i].OnClick();
             FillImage.fillAmount = index / (nodes.Count);
 

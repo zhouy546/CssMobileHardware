@@ -40,7 +40,9 @@ public class LightNode : Node
 
            // Debug.Log(sendstr);
 
-            await TCP.INSTANCE.sendHEXMsg(ip, port, sendstr);
+            //await TCP.INSTANCE.sendHEXMsg(ip, port, sendstr);
+
+            await TCP.INSTANCE.sendudpHEXMsg(ip, port, sendstr);
         }
     }
 
@@ -53,7 +55,10 @@ public class LightNode : Node
 
             string sendstr = str + " " + CRC.CRCCalc(str);
 
-            await TCP.INSTANCE.sendHEXMsg(ip, port, sendstr);
+            // await TCP.INSTANCE.sendHEXMsg(ip, port, sendstr);
+
+            await TCP.INSTANCE.sendudpHEXMsg(ip, port, sendstr);
+
         }
     }
 }

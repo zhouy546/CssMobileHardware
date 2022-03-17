@@ -13,7 +13,9 @@ public class TCP : MonoBehaviour
 
     private string Revmessage;
 
-    private bool isConnected;
+//    private bool isConnected;
+
+    private string perviousIP;
 
     public bool m_lock;
     // Start is called before the first frame update
@@ -55,67 +57,190 @@ public class TCP : MonoBehaviour
 
     }
 
+    public void shutDownSocket()
+    {
+        if (tcpClient != null)
+        {
+            try
+            {
+                tcpClient.Shutdown(SocketShutdown.Both);
+
+                tcpClient.Close();
+
+                tcpClient = null;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning(e.ToString());
+            }
+
+
+        }
+    }
 
     public async Task Connect(string ip,int port)
     {
         tcpClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         IPAddress ipaddress = IPAddress.Parse(ip);
+        perviousIP = ip;
         EndPoint point = new IPEndPoint(ipaddress, port);
         tcpClient.ReceiveTimeout = 500;
         tcpClient.SendTimeout = 500;
 
         try
         {
-            isConnected = true;       
+            //isConnected = true;       
             tcpClient.Connect(point);//通过IP和端口号来定位一个所要连接的服务器端
         }
         catch (Exception e)
         {
-            isConnected = false;
+           // isConnected = false;
+
+            tcpClient = null;
             Debug.Log(e);
         }
 
         await Task.Yield();
     }
 
+
+
     public async Task sendMsg(string ip, int port,string msg)
     {
-        await Connect(ip, port);
-
-        if (isConnected)
+        try
         {
-            tcpClient.Send(Encoding.Default.GetBytes(msg));
-            //receive();
-            await Task.Delay(1000);
+            if (perviousIP == ip && tcpClient != null)
+            {
+                if (tcpClient.IsBound)
+                {
+                    tcpClient.Send(Encoding.Default.GetBytes(msg));
+                    Debug.Log("链接此IP重复，直接发送");
 
+                    await Task.Delay(1000);
+                }
+                else
+                {
+                    await Connect(ip, port);
 
-          //  tcpClient.Shutdown(SocketShutdown.Both);
-            tcpClient.Close();
+                    if (tcpClient.IsBound)
+                    {
+                        tcpClient.Send(Encoding.Default.GetBytes(msg));
+
+                        await Task.Delay(1000);
+                    }
+                }
+            }
+            else
+            {
+                if (tcpClient != null)
+                {
+                    shutDownSocket();
+
+                }
+
+                await Connect(ip, port);
+                if (tcpClient.IsBound)
+                {
+                    Debug.Log("第一次链接此IP");
+
+                    tcpClient.Send(Encoding.Default.GetBytes(msg));
+
+                    await Task.Delay(1000);
+                }
+            }
         }
+        catch (Exception e)
+        {
 
-        tcpClient = null;
+            Debug.LogWarning(e.ToString());
+        }
+   
 
- 
     }
 
     public async Task sendHEXMsg(string ip, int port, string msg)
     {
-        await Connect(ip, port);
-
-        if (isConnected)
+        try
         {
+            if (perviousIP == ip && tcpClient != null)
+            {
+                Debug.Log("isbound?" + tcpClient.IsBound);
 
-            byte[] b = Utility.strToToHexByte(msg);
-            tcpClient.Send(b);
-            //receive();
-            await Task.Delay(1000);
+                if (tcpClient.IsBound)
+                {
+                    byte[] b = Utility.strToToHexByte(msg);
+                    tcpClient.Send(b);
+                    Debug.Log("链接此IP重复，直接发送");
 
-          //  tcpClient.Shutdown(SocketShutdown.Both);
-            tcpClient.Close();
+                    await Task.Delay(1000);
+                }
+                else
+                {
+                    await Connect(ip, port);
+
+                    if (tcpClient.IsBound)
+                    {
+                        byte[] b = Utility.strToToHexByte(msg);
+                        tcpClient.Send(b);
+
+                        await Task.Delay(1000);
+                    }
+                }
+            }
+            else
+            {
+                if (tcpClient != null)
+                {
+                    shutDownSocket();
+
+                }
+
+                await Connect(ip, port);
+                if (tcpClient.IsBound)
+                {
+                    Debug.Log("isbound?" + tcpClient.IsBound);
+                    Debug.Log("第一次链接此IP");
+
+                    byte[] b = Utility.strToToHexByte(msg);
+
+
+                    tcpClient.Send(b);
+
+                    await Task.Delay(1000);
+                }
+            }
+        }
+        catch (Exception E)
+        {
+            Debug.LogWarning(E.ToString());
+
         }
 
-        tcpClient = null;
 
+
+        //await Connect(ip, port);
+
+        //if (isConnected)
+        //{
+
+        //    byte[] b = Utility.strToToHexByte(msg);
+        //    tcpClient.Send(b);
+        //    //receive();
+        //    await Task.Delay(1000);
+
+        //    //  tcpClient.Shutdown(SocketShutdown.Both);
+        //    tcpClient.Close();
+        //}
+
+        //tcpClient = null;
+
+    }
+
+    public async Task sendudpHEXMsg(string ip, int port, string msg)
+    {
+        UDP.udp_Send(msg, ip, port);
+
+        await Task.Delay(1000);
     }
 
     private void receive()
