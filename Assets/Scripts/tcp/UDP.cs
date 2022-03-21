@@ -3,12 +3,20 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
-public static class UDP 
+public  class UDP :MonoBehaviour
 {
-    static Socket udpserver = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-    public static bool udp_Send(string da, string ip, int port)
+    public static UDP instance;
+
+    Socket udpserver = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+    public void Start()
+    {
+        instance = this;
+    }
+
+    public  bool udp_Send(string da, string ip, int port)
     {
         try
         {
@@ -24,5 +32,12 @@ public static class UDP
         {
             return false;
         }
+    }
+
+    public async Task sendudpHEXMsg(string ip, int port, string msg)
+    {
+        udp_Send(msg, ip, port);
+
+        await Task.Delay(1000);
     }
 }

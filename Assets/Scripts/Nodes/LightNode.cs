@@ -42,7 +42,7 @@ public class LightNode : Node
 
             //await TCP.INSTANCE.sendHEXMsg(ip, port, sendstr);
 
-            await TCP.INSTANCE.sendudpHEXMsg(ip, port, sendstr);
+            await UDP.instance.sendudpHEXMsg(ip, port, sendstr);
         }
     }
 
@@ -57,7 +57,7 @@ public class LightNode : Node
 
             // await TCP.INSTANCE.sendHEXMsg(ip, port, sendstr);
 
-            await TCP.INSTANCE.sendudpHEXMsg(ip, port, sendstr);
+            await UDP.instance.sendudpHEXMsg(ip, port, sendstr);
 
         }
     }

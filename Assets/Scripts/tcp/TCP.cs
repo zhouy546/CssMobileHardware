@@ -236,12 +236,7 @@ public class TCP : MonoBehaviour
 
     }
 
-    public async Task sendudpHEXMsg(string ip, int port, string msg)
-    {
-        UDP.udp_Send(msg, ip, port);
 
-        await Task.Delay(1000);
-    }
 
     private void receive()
     {
